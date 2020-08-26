@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <% include layout/head.ejs %>
+    <title>Dashboard</title>
+</head>
+<body>
+    <div class="page">
+        <!-- Main Navbar-->
+        <% include layout/header.ejs %>
+        <div class="page-content d-flex align-items-stretch">
+            <!-- Side Navbar -->
+            <% include layout/sidemenu.ejs %>
+            <div class="content-inner">
+                <!-- Page Header-->
+                <header class="page-header">
+                    <div class="container-fluid">
+                        <h2 class="no-margin-bottom"><%= name %></h2>
+                    </div>
+                </header>
+                <section class="dashboard-counts no-padding-bottom">
+
+                    <div class="container">
+                        <table class="table">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col">S.No.</th>
+                                    <th scope="col">User Name</th>
+                                    <th scope="col">Email</th>
+                                    <th scope="col">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody">
+                                
+                            </tbody>
+                            
+                        </table>
+                    </div>
+
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+        Launch demo modal
+    </button> -->
+    
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Update User Detail</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="modal_form">
+                        <input type="text" name="userId" id="modal_ip_userId" hidden>
+                        <div class="form-group">
+                            <label for="exampleInputPassword1">Name</label>
+                            <input type="text" name="name" class="form-control" id="modal_ip_name" placeholder="name">
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleInputEmail1">Email address</label>
+                            <input type="email" name="email" class="form-control" id="modal_ip_email" aria-describedby="emailHelp"
+                                placeholder="Enter email">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" id="modal_submit" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    
+    <% include layout/footer.ejs %>
+
+    <script>
+        $.ajax({
+            type: "GET",
+            url: "/users",
+            success: (response) => {
+                if(response.code == 200) {
+                    response.data.forEach((user, i) => {
+                        let temp = `<tr>
+                                        <th scope="row">${i + 1}</th>
+                                        <td>${user.name}</td>
+                                        <td>${user.email}</td>
+                                        <td>
+                                            <i class="fa fa-pen"
+                                            aria-hidden="true"
+                                            style="color: blue;"
+                                            onclick="openModal('${user._id}', '${user.name}', '${user.email}')"></i>&nbsp;&nbsp;
+
+                                            <i class="fa fa-trash"
+                                                aria-hidden="true"
+                                                style="color: red;"
+                                                onclick="deleteUser('${user._id}')"></i>
+                                        </td>
+                                    </tr>`;
+                        $('#tbody').append(temp);
+                    });
+                }
+            }
+        });
+
+        function deleteUser(id) {
+            if(confirm('Are You Sure You Want To Delete This User?')) {
+                $.ajax({
+                    type: "DELETE",
+                    url: "/user", 
+                    data: {userId: id},
+                    success: (response) => {
+                        console.log(response)
+                        if(response.code == 200) {
+                            alert(response.message);
+                            location.reload();
+                        } else {
+                            alert(response.message);
+                        }
+                    }
+                });
+            }
+        }
+
+        function openModal(userId, name, email) {
+            $('#modal_ip_userId').val(userId);
+            $('#modal_ip_name').val(name);
+            $('#modal_ip_email').val(email);
+            $('#exampleModal').modal('show');
+        }
+
+        $('#modal_submit').on('click', function() {
+            $.ajax({
+                type: "POST",
+                url: "/edit-user",
+                data: $("#modal_form").serialize(),
+                success: (response) => {
+                    $('#exampleModal').modal('hide');
+                    setTimeout(() => {
+                        if (response.code == 200) {
+                            alert(response.message);
+                            location.reload();
+                        } else {
+                            alert(response.message);
+                        }
+                    }, 700);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

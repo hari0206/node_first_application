@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <% include layout/head.ejs %>
+    <title>Sales</title>
+</head>
+
+<body>
+    <div class="page">
+        <!-- Main Navbar-->
+        <% include layout/header.ejs %>
+        <div class="page-content d-flex align-items-stretch">
+            <!-- Side Navbar -->
+            <% include layout/sidemenu.ejs %>
+            <div class="content-inner">
+                <!-- Page Header-->
+                <form id="create-Sales">
+                    <header class="page-header">
+                        <div class="container-fluid">
+                            <div class="col-md-8">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="exampleInputPassword1">Employee</label>
+                                            <select class="form-control small-select" name="employee" id="item_select_employee">
+                                                <option selected disabled>Select Employee</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="exampleInputPassword1">Items</label>
+                                            <select class="form-control small-select" name="item" id="item_select_option"
+                                                onchange="addItems(this.value)">
+                                                <option selected disabled>Select Items</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="col-md-8">
+                                    <!-- Search form -->
+                                    <!-- <input
+                                                            id="search_box"
+                                                            class="form-control"
+                                                            type="text"
+                                                            placeholder="Search"
+                                                            aria-label="Search"
+                                                            oninput="searchEmployees(this.value)">-->
+                                    <ul class="list-group" id="user_search_list">
+                    
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </header>
+                
+                    <section class="dashboard-counts no-padding-bottom">
+    
+                    <div name="itemname" class="container">
+                        <table class="table">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col">S.No.</th>
+                                    <th scope="col">Item Name</th>
+                                    <th scope="col">Description</th>
+                                    <th scope="col">Quantity</th>
+                                    <th scope="col">Price</th>
+                                    <th scope="col">Total</th>
+                                    <th scope="col">Remove Item</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody">
+    
+                            </tbody>
+    
+                        </table>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4" id="grand_total_element">
+                          
+                        </div>
+                        <div class="col-md-4">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div>
+                                        <button type="submit" class="btn btn-primary submit" id="sale_submit_btn">Save</button>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div>
+                                        <a href="masterList" type="submit" class="btn btn-secondary" data-dismiss=" ">Cancel</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    </form>
+
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <% include layout/footer.ejs %>
+
+    <script>
+
+
+        var cart = [];
+        var grandTotal = 0;
+        var items = [];
+        var counter = 0;
+        $.ajax({
+            type: "GET",
+            url: "/masters",
+            success: (result) => {
+                if(result.code == 200 && result.data.length > 0) {
+                    items = result.data;
+                    result.data.forEach(item => {
+                        $('#item_select_option').append(`<option value="${item._id}">${item.name}</option>`);
+                    });
+                }
+            }
+        });
+
+        $.ajax({
+                type: "GET",
+                url: "/employee-details",
+                success: (response) => {
+                    // return console.log(response)
+                    if (response.code == 200) {
+                        response.data.forEach((employee, i) => {
+                            $('#item_select_employee').append(`<option value="${employee._id}">${employee.name}</option>`);
+                        });
+                    } else {
+                        alert(response.message);
+                    }
+                }
+            });
+
+        function addItems(itemId) {
+            //  $('option:selected', this).remove();
+            let itemData = items.find(item => item._id == itemId);
+            let alreadyExistInCart = cart.find(item => item._id == itemData._id)
+            if(alreadyExistInCart) {
+                alert('item already added')
+            } else {
+                cart.push({...itemData, quantity: 1});
+                grandTotal += itemData.price;
+                if(itemData) {
+                    $('#tbody').append(`<tr>
+                                            <td >${++counter}</td>
+                                            <td >${itemData.name}</td>
+                                            <td>${itemData.description}</td>
+                                            <td>
+                                                <i class="fa fa-caret-left" aria-hidden="true" style="font-size:25px;color:green;cursor:pointer"></i>
+                                                &nbsp;
+                                                <span id="quantity${itemData._id}">1<span>
+                                                &nbsp;
+                                                <i
+                                                    class="fa fa-caret-right"
+                                                    aria-hidden="true"
+                                                    style="font-size:25px;color:green;cursor:pointer"
+                                                    onclick="incrementQuantity('quantity${itemData._id}')"></i>
+                                            </td>
+                                            <td>${itemData.price}</td>
+                                            <td>${itemData.price}</td>
+                                            <td><input type="button" value="Delete Item" class="delrow" /></td> 
+                                        </tr>`)
+                }
+                $('#grand_total_element').html(`TOTAL: ${grandTotal}`);
+                $('option:selected', this).remove();
+                // $(function () {
+                //     $('tr')
+                //         .find('td')
+                //         .parent()//traversing to 'tr' Element
+                //         .append('');
+    
+                //     $('.delrow').click(function () {
+                //         $(this).parent().parent().remove(); //Deleting the(tr) Element 
+                //     });
+                // });
+            }
+        }
+
+        
+        // var clicks = 0; $("#quantity${itemData._id}").click(function () { clicks++; $('.quantity${itemData._id}').html(clicks); });
+
+        function incrementQuantity(data) {
+            var quantity = parseInt(document.getElementById(`${data}`).innerText);
+            document.getElementById(`${data}`).innerText = quantity + 1  ;
+        }
+
+        // $('#sale_submit_btn').on('click', () => {
+        //     console.log('submitted')
+        // });
+
+        $('.submit').on('click', (e) => {
+            e.preventDefault();
+            console.log(cart)
+            console.log(grandTotal)
+            console.log($('#item_select_employee').val())
+            $.ajax({
+                type: "POST",
+                url: "/sales-invoice",
+                dataType: "json",
+                data: {
+                    cart: JSON.stringify(cart),
+                    grandTotal: grandTotal,
+                    employeeId: $('#item_select_employee').val()
+                },
+                success: (response) => {
+                    // return console.log(response);
+                    if (response.code == 200) {
+                        alert(response.message);
+                        location.reload();
+                    } else {
+                        alert(response.message);
+                    }
+                }
+            });
+        });
+
+        
+    </script>
+
+</body>
+</html>

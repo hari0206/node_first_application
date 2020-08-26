@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <% include layout/head.ejs %>
+    <title>Item List</title>
+</head>
+
+<body>
+    <div class="page">
+        <!-- Main Navbar-->
+        <% include layout/header.ejs %>
+        <div class="page-content d-flex align-items-stretch">
+            <!-- Side Navbar -->
+            <% include layout/sidemenu.ejs %>
+            <div class="content-inner">
+                <!-- Page Header-->
+                <header class="page-header">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <a href="/create-master" class="">
+                                    <button class="btn btn-info">
+                                        Create Item
+                                    </button>
+                                </a>
+                            </div>
+                            <div class="col-md-8">
+                                <!-- Search form -->
+                                <!-- <input
+                                    id="search_box"
+                                    class="form-control"
+                                    type="text"
+                                    placeholder="Search"
+                                    aria-label="Search"
+                                    oninput="searchEmployees(this.value)"> -->
+
+                                <ul class="list-group" id="user_search_list">
+
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+                <section class="dashboard-counts no-padding-bottom">
+
+                    <div class="container">
+                        <table class="table">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col">S.No.</th>
+                                    <th scope="col">Item Image</th>
+                                    <th scope="col">Item Name</th>
+                                    <th scope="col">Item Description</th>
+                                    <th scope="col">Price</th>
+                                    <th scope="col">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody">
+
+                            </tbody>
+
+                        </table>
+                    </div>
+
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Update Employee Detail</h5>
+                    <!-- <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button> -->
+                </div>
+                <div class="modal-body">
+                    <form id="modal_form">
+                        <input type="text" name="masterId" id="modal_ip_masterId" hidden>
+                        <div class="form-group">
+                            <input type="file" name="myImage" accept="e/png, image/jpeg">
+                            <img src="" id="modal_ip_image" name="myImage" alt="Item Image" height="70" width="70">
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleInputPassword1">Item Name</label>
+                            <input type="text" name="name" class="form-control" id="modal_ip_name" placeholder="Item Name">
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleInputPassword1">Description</label>
+                            <input id="modal_ip_description" class="form-control" name="description" 
+                            placeholder="Description">
+                            </input>
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleInputPassword1">Price</label>
+                            <input type="number" id="modal_ip_price" name="price" class="form-control" id="modal_ip_name" placeholder="Price">
+                        </div>
+
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" id="modal_submit" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <% include layout/footer.ejs %>
+    <script>
+        $.ajax({
+                type: "GET",
+                url: "/masters",
+                success: (response) => {
+                    // return console.log(response);
+                    if (response.code == 200) {
+                        response.data.forEach((master, i) => {
+                            let img = null
+                            if (master.itemImage){
+                                img = `<img src="${master.itemImage}"  height="50" width="50">`
+                            }
+                            $('#tbody').append(`<tr>
+                                                <td scope="col">${i + 1}</td>
+                                                <td scope="col">${img}</td>
+                                                <td scope="col">${master.name}</td>
+                                                <td scope="col">${master.description}</td>
+                                                <td scope="col">${master.price}</td>
+                                                <td scope="col">                
+                                                        <i class="fa fa-pen"                                
+                                                        aria-hidden="true"
+                                                        style="color: blue;"
+                                                        onclick="openModal('${master._id}','${master.itemImage}','${master.name}', '${master.description}', '${master.price}')"></i>&nbsp;&nbsp;
+                                                        
+                                                    <i class="fa fa-trash"
+                                                        aria-hidden="true"
+                                                        style="color: red;"
+                                                        onclick="deleteItem('${master._id}' )"></i>
+                                                </td>  
+                                            </tr>`);
+                        });
+                    } else {
+                        alert(response.message);
+                    }
+                }
+            });
+            
+            function deleteItem(masterId) {
+                    if (confirm('are you sure')) {
+                        $.ajax({
+                            type: "DELETE",
+                            url: "/master",
+                            data: { masterId: masterId },
+                            success: (response) => {
+
+                                if (response.code == 200) {
+                                    alert(response.message);
+                                    location.reload();
+                                } else {
+                                    alert(response.message);
+                                }
+                                // console.log(response)
+                            }
+                        });
+                    }
+                }
+                function openModal(masterId, img, name, description, price) {
+                    $('#modal_ip_masterId').val(masterId);
+                    $('#modal_ip_image').attr('src', img);
+                    $('#modal_ip_name').val(name);
+                    $('#modal_ip_description').val(description);
+                    $('#modal_ip_price').val(price);
+
+
+                    // $.ajax({
+                    //     type: "GET",
+                    //     url: "/departments",
+                    //     success: (response) => {
+                    //         console.log(response)
+                    //         if (response.code == 200) {
+                    //             $('.custom-select').html('');
+                    //             response.data.forEach((department, i) => {
+                    //                 if (departmentId == department._id) {
+                    //                     $('.custom-select').append(`<option value="${department._id}" selected>${department.name}</option>`);
+                    //                 } else {
+                    //                     $('.custom-select').append(`<option value="${department._id}">${department.name}</option>`);
+                    //                 }
+                    //             });
+                    //         }
+                    //     }
+                    // });
+
+                    $('#exampleModal').modal('show');
+                }
+
+                $('#modal_submit').on('click', function () {
+                        $.ajax({
+                            type: "POST",
+                            url: "/edit-item",
+                            // data: $("#modal_form").serialize(),
+                            cache: false,
+                            contentType: false,
+                            processData: false,
+                            data: new FormData($("#modal_form")[0]),
+                            success: (response) => {
+                                $('#exampleModal').modal('hide');
+                                setTimeout(() => {
+                                    if (response.code == 200) {
+                                        alert(response.message);
+                                        location.reload();
+                                    } else {
+                                        alert(response.message);
+                                    }
+                                }, 700);
+                            }
+                        });
+                    });
+    </script>
+
+</body>
+</html>

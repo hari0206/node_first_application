@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <% include layout/head.ejs %>
+    <title>Item List</title>
+</head>
+
+<body>
+    <div class="page">
+        <!-- Main Navbar-->
+        <% include layout/header.ejs %>
+        <div class="page-content d-flex align-items-stretch">
+            <!-- Side Navbar -->
+            <% include layout/sidemenu.ejs %>
+            <div class="content-inner">
+                <!-- Page Header-->
+                <header class="page-header">
+                </header>
+                <section class="dashboard-counts no-padding-bottom">
+
+                    <div class="container">
+                        <table class="table">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col">S.No.</th>
+                                    <th scope="col">Employee Name</th>
+                                    <th scope="col">Employee Sale Detail</th>
+                                    <th scope="col">Grand Total</th>
+                                    <th scope="col">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody">
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="exampleModal1" tabindex="1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Sales Detail</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="page" id="modal_form ">
+                        <div class="page-content d-flex align-items-stretch">
+                            <div class="content-inner">
+                                <section class="dashboard-counts no-padding-bottom">
+                    
+                                    <div class="container">
+                                        <table class="table">
+                                            <thead class="thead-dark">
+                                                <tr>
+                                                    <th id="modal_Items" scope="col">Sales Items</th>
+                                                    <th id="modal_name" scope="col">Employee</th>
+                                                    <th id="modal_Description" scope="col">Description</th>
+                                                    <th id="modal_price" scope="col">Price</th>
+                                                    <th id="modal_quantity" scope="col">Quantity</th>
+                                                    <th id="modal_total" scope="col">Grand Total</th>
+                                                    <!-- <th scope="col">Print Invoice</th> -->
+                                                </tr>
+                                            </thead>
+                                            <tbody id="body">
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </section>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal fade" id="exampleModal2" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Update Sales Detail</h5>
+              
+                </div>
+                <div class="modal-body">
+                    <form id="modal_form">
+                        <input type="text" name="employeeId" id="modal_ip_employeeId" hidden>
+                    
+                        <div class="form-group">
+                            <label for="exampleInputPassword1">Product Name</label>
+                            <input type="text" name="name" class="form-control" id="modal_ip_name" placeholder="Product Name">
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleInputPassword1">Product Description</label>
+                            <input type="text" name="Description" class="form-control" id="modal_ip_Description" placeholder="Product Description">
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleInputPassword1">Price</label>
+                            <input type="text" name="Price" class="form-control" id="modal_ip_Price" placeholder="Price">
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleInputPassword1">Quantity</label>
+                            <input type="number" name="Quantity" class="form-control" id="modal_ip_Quantity" placeholder="Price">
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleInputPassword1">Grand Total</label>
+                            <input type="number" name="Total" class="form-control" id="modal_ip_Total" placeholder="Grand Total">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" id="modal_submit" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <% include layout/footer.ejs %>
+
+    <script>
+        $.ajax({
+            type: "GET",
+                url: "/salesViews",
+                success: (response) => {
+                    if (response.code == 200) {
+                        response.data.forEach((sales, i) => {
+                            // return console.log(sales)
+                            let myArray = sales.cart;
+                            
+                            for (let x = 0; x < myArray.length; x++) {
+                                $('#body').append(`<tr>
+                                                    <td scope="col">${myArray[x].name}</td>
+                                                    <td scope="col">${sales.employees.name}</td>
+                                                    <td scope="col">${myArray[x].description}</td>
+                                                    <td scope="col">${myArray[x].price}</td>
+                                                    <td scope="col">${myArray[x].quantity}</td>
+                                                    <td scope="col">${sales.grandTotal}</td>
+                                                </tr>`);
+                                            }
+                                $('#tbody').append(`<tr>
+                                    <td scope="col">${i + 1}</td>
+                                    <td scope="col">${sales.employees.name}</td>
+                                    <td scope="col">
+                                        <i class="fa fa-id-card"
+                                        aria-hidden="true"
+                                        style="color: black;"
+                                        onclick="openModal1('${sales.grandTotal}',${sales.cart.name})"></i>&nbsp
+                                                </td>                                                                
+                                                
+                                                </td>
+                                                <td scope="col">${sales.grandTotal}</td>
+                                                <td scope="col">
+                                                    <i class="fa fa-pen"
+                                                        aria-hidden="true"
+                                                        style="color: blue;"
+                                                        onclick="openModal2(' ')"></i>&nbsp;&nbsp;
+                                                        
+                                                    <i class="fa fa-trash"
+                                                        aria-hidden="true"
+                                                        style="color: red;"
+                                                        onclick="deleteSales('${sales._id}')"></i>
+                                                </td>
+                                            </tr>`);
+                                    
+                        });
+                    } else {
+                        alert(response.message);
+                    }
+                }
+            });
+
+            function deleteSales(salesId) {
+                    if (confirm('are you sure')) {
+                        $.ajax({
+                            type: "DELETE",
+                            url: "/sales",
+                            data: { salesId: salesId },
+                            success: (response) => {
+                                if (response.code == 200) {
+                                    alert(response.message);
+                                    location.reload();
+                                } else {
+                                    alert(response.message);
+                                }
+                            }
+                        });
+                    }
+                }
+
+            function openModal1(grandTotal) {
+                // return console.log(sales)
+                    $('#modal_Items').val(grandTotal);
+                    $('#exampleModal1').modal('show');
+                }
+
+            function openModal2(sales) {
+                    $('#modal_Items').val(sales);
+                    $('#exampleModal2').modal('show');
+            }
+
+
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <% include layout/head.ejs %>
+    <title>Add List</title>
+</head>
+
+<body>
+    <div class="page">
+        <!-- Main Navbar-->
+        <% include layout/header.ejs %>
+        <div class="page-content d-flex align-items-stretch">
+            <!-- Side Navbar -->
+            <% include layout/sidemenu.ejs %>
+            <div class="content-inner">
+                <!-- Page Header-->
+                <header class="page-header">
+                    <div class="container-fluid">
+                        <h2 class="no-margin-bottom"></h2>
+                    </div>
+                </header>
+                <section class="dashboard-counts no-padding-bottom">
+
+                    <div class="container">
+
+                        <form id="item-form">
+
+                            <div class="form-group">
+                                <label for="exampleFormControlTextarea1">Item Name</label>
+                                <input class="form-control" name="name" id="name" rows="2"
+                                    placeholder="Enter Item Name"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="exampleFormControlTextarea1">Description</label>
+                                <input class="form-control" id="description"  name="description"rows="2"
+                                    placeholder="Description"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="exampleFormControlTextarea1">Sale Price</label>
+                                <input type="number" class="form-control" id="price" name="price"min="0" data-bind="value:replyNumber" rows="2"
+                                    placeholder="Enter Sale Price"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="exampleFormControlTextarea1">Product Image</label>
+                                <input type="file" name="myImage" class="form-control-file" accept="e/png, image/jpeg">
+                            </div>
+                            <button type="submit" class="btn btn-primary submit">Submit</button>
+                            <a href="masterlist" type="cancel" class="btn btn-secondary">Cancel</a>
+
+                        </form>
+
+                    </div>
+
+                </section>
+
+            </div>
+        </div>
+    </div>
+
+    <% include layout/footer.ejs %>
+
+    <script>
+        $('.submit').on('click', (e) => {
+                e.preventDefault();
+                var formData = new FormData($("#item-form")[0]);
+                // formData.append('userPhoto', $('input[type=file]')[0].files[0]); 
+                $.ajax({
+                    type: "POST",
+                    url: "/create-master",
+                    data: formData,
+                    // data: $('#item-form').serialize(),
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    success: (response) => {
+                        if (response.code == 200) {
+                            alert(response.message);
+                            // location.reload();
+                            window.location.href = ('masterlist');
+                        } else {
+                            alert(response.message);
+                        }
+                    }
+                });
+            });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <% include layout/head.ejs %>
+    <title>Employee</title>
+</head>
+
+<body>
+    <div class="page">
+        <!-- Main Navbar-->
+        <% include layout/header.ejs %>
+        <div class="page-content d-flex align-items-stretch">
+            <!-- Side Navbar -->
+            <% include layout/sidemenu.ejs %>
+            <div class="content-inner">
+                <!-- Page Header-->
+                <header class="page-header">
+                    <div class="container-fluid">
+                        <h2 class="no-margin-bottom"></h2>
+                    </div>
+                </header>
+                <section class="dashboard-counts no-padding-bottom">
+
+                    <div class="container">
+                        <!-- <label for="exampleFormControlFile1">Upload Picture</label>
+                        <%= typeof msg != 'undefined' ? msg : ' ' %>
+                        <form action="/upload" method="POST" enctype="multipart/form-data">
+                            <div class="list-inline" >
+                                <input type="file" name="myImage" class="form-control-file" accept="e/png, image/jpeg">
+                                <button type="submit" >Submit</button>
+                            </div>
+                        </form>
+                        <img src="<%= typeof file != 'undefined' ? file : ' ' %>" class="responsive-img" height="100" width="100"> -->
+                        <form id="employee-form">
+
+                            <div class="form-group">
+                                <label for="exampleFormControlTextarea1">Employee Name</label>
+                                <input class="form-control" name="name" id="exampleFormControlTextarea1" rows="2" placeholder="Enter Employee Name"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="exampleInputEmail1">Email</label>
+                                <input type="email" class="form-control" name="email" id="exampleInputEmail1" aria-describedby="emailHelp"
+                                    placeholder="Enter email">
+                            </div>
+                            <div class="form-group">
+                                <label for="exampleInputPassword1">Password</label>
+                                <input type="password" class="form-control" name="password" id="exampleInputPassword1" placeholder="Password">
+                            </div>
+                            <div class="form-group">
+                                <label for="exampleFormControlTextarea1">Department Name</label>
+                                <select class="form-control custom-select" name="departmentId">
+                                    <option selected disabled>Open this select menu</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="exampleFormControlTextarea1">Birthday</label>
+                                <input type="datetime-local" class="form-control" name="dob" id="exampleFormControlTextarea1" rows="2"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="exampleFormControlTextarea1">Profile Pic</label>
+                                <input type="file" name="myImage" class="form-control-file" accept="e/png, image/jpeg">
+                            </div>
+
+                            <button type="submit" class="btn btn-primary submit">Submit</button>
+                            <a href="employees" type="submit" class="btn btn-secondary" data-dismiss=" ">Cancel</a>
+                        </form>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <% include layout/footer.ejs %>
+    <script>
+        $.ajax({
+            type: "GET",
+            url: "/departments",
+            success: (response) => {
+                if (response.code == 200) {
+                    response.data.forEach((department, i) => {
+                        $('.custom-select').append(`<option value="${department._id}">${department.name}</option>`);
+                    });
+                } else {
+                    alert(response.message);
+                }
+            }
+        });
+
+        $('.submit').on('click', (e) => {
+            e.preventDefault();
+            var formData = new FormData($("#employee-form")[0]);
+            // formData.append('userPhoto', $('input[type=file]')[0].files[0]);
+            $.ajax({
+                type: "POST",
+                url: "/create-employee",
+                data: formData,
+                // data: $('#employee-form').serialize(),
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: (response) => {
+                    if (response.code == 200) {
+                        alert(response.message);
+                        location.reload();
+                    } else {
+                        alert(response.message);
+                    }
+                }
+            });
+        })
+    </script>
+</body>
+
+</html>

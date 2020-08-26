@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<% include layout/head.ejs %>
+		<title>Eatinng</title>
+	</head>
+
+	<body>
+		<div class="page">
+			<!-- Main Navbar-->
+			<% include layout/header.ejs %>
+			<div class="page-content d-flex align-items-stretch">
+				<!-- Side Navbar -->
+				<% include layout/sidemenu.ejs %>
+				<div class="content-inner">
+					<!-- Page Header-->
+					<div class="col-sm-10 offset-2">
+							<!-- Search form -->
+
+							<input id="search_box" class="form-control" type="text" placeholder="Search"
+								aria-label="Search">
+							<!-- <input id="search_box" class="form-control" type="text" placeholder="Search"
+								aria-label="Search" oninput="searchEmployees(this.value)"> -->
+	
+							<ul class="list-group" id="user_search_list">
+	
+							</ul>
+							<button id="click" > bu</button>
+						</div>
+					<section class="dashboard-counts no-padding-bottom">
+						
+						<div class="col-sm-10 offset-2">
+							<table class="table">
+								<thead class="thead-dark">
+									<tr>
+										<th scope="col">S.No.</th>
+										<th scope="col">Name</th>
+										<th scope="col">Designation</th>
+										<th scope="col">Contact</th>
+									</tr>
+								</thead>
+								<tbody id="tbody">
+
+								</tbody>
+
+							</table>
+						</div>
+
+					</section>
+				</div>
+			</div>
+		</div>
+
+		<% include layout/footer.ejs %>
+
+		<script>
+
+			// $.ajax({
+			// 	type: "GET",
+			// 	url: "/employee-details",
+			//	 	success: (response) => {
+			// 		// return console.log(response)
+			// 		if (response.code == 200) {
+			// 			response.data.forEach((employee, i) => {
+			// 				$('#tbody').append(`<tr>
+            //                                     <td scope="col">${i + 1}</td>
+            //                                     <td scope="col">${employee.name}</td>
+            //                                     <td scope="col">${employee.designation}</td>
+            //                                     <td scope="col">${employee.contact}</td>
+            //                                 </tr>`);
+			// 			});
+			// 		} else {
+			// 			alert(response.message);
+			// 		}
+			// 	}
+			// });
+
+
+			$('#click').click(function () {
+					$('#user_search_list').html('');
+					$.ajax({
+					type: "POST",
+					url: "/search-employee",
+					data: { text: $("#search_box").val() },
+					success: (response) => {
+						console.log(response)
+						if (response.code == 200) {
+							
+							if (response.data.length > 0) {
+								response.data.forEach(employee => {
+									$('#user_search_list').append(`
+                                                                <li class="list-group-item">
+                                                                    <a href="/employee/${employee._id}">
+																	   Name: ${employee.name} Designation: ${employee.designation}
+																	   Contact:${employee.contact}
+                                                                    </a>
+                                                                </li>`);
+								});
+							}
+						}
+						console.log(response)
+					}
+				});
+				});
+
+			function searchEmployees(text) {
+				$.ajax({
+					type: "POST",
+					url: "/search-employee",
+					data: { text: text },
+					success: (response) => {
+						console.log(response)
+						if (response.code == 200) {
+							$('#user_search_list').html('');
+							if (response.data.length > 0) {
+								response.data.forEach(employee => {
+									$('#user_search_list').append(`
+                                                                <li class="list-group-item">
+                                                                    <a href="/employee/${employee._id}">
+																	   Name: ${employee.name} Designation: ${employee.designation}
+																	   Contact:${employee.dob}
+                                                                    </a>
+                                                                </li>`);
+								});
+							}
+						}
+						console.log(response)
+					}
+				});
+			}
+		</script>
+	</body>
+
+</html>

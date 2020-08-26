@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <% include layout/head.ejs %>
+    <title>Employees Detail</title>
+</head>
+
+<body>
+    <!-- <form class="form-horizontal" method="POST" action="/employee"> -->
+        <div class="page">
+            <!-- Main Navbar-->
+            <% include layout/header.ejs %>
+            <div class="page-content d-flex align-items-stretch">
+                <!-- Side Navbar -->
+                <% include layout/sidemenu.ejs %>
+                <div class="content-inner">
+                    <!-- Page Header-->
+                    <header class="page-header">
+                        <div class="container-fluid">
+                            <h2 class="no-margin-bottom"></h2>
+                        </div>
+                        <div class="col-md-4">
+                            <a href="/create-department">
+                                <button class="btn btn-info">
+                                    Add Department
+                                </button>
+                            </a>
+                        </div>
+                    </header>
+                    <section class="dashboard-counts no-padding-bottom">
+                        
+                        <div class="container">
+                            <table class="table">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th scope="col">S.No.</th>
+                                        <th scope="col">Name</th>
+                                        <th scope="col">Description</th>
+                                        <th scope="col">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody">
+
+                                </tbody>
+
+                            </table>
+                        </div>
+
+                    </section>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Update Department Detail</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="modal_form">
+                        <input type="text" name="departmentId" id="modal_ip_departmentId" hidden>
+                        <div class="form-group">
+                            <label for="exampleInputPassword1">Name</label>
+                            <input type="text" name="name" class="form-control" id="modal_ip_name" placeholder="name">
+                        </div>
+                        <div class="form-group">
+                            <label for=" ">Department Description</label>
+                            <input type="text" name="description" class="form-control" id="modal_ip_description"
+                                aria-describedby=" " placeholder="Enter Description">
+                        </div>
+                    <!-- </form> -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" id="modal_submit" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <% include layout/footer.ejs %>
+
+    <script>
+        $.ajax({
+            type: "GET",
+            url: "/departments",
+            success: (response) => {
+                if (response.code == 200) {
+                    response.data.forEach((department, i) => {
+                        $('#tbody').append(`<tr>
+                                                <td scope="col">${i + 1}</td>
+                                                <td scope="col">${department.name}</td>
+                                                <td scope="col">${department.description}</td>
+                                                <td scope="col"> 
+                                                    <i class="fa fa-pen"
+                                                        aria-hidden="true"
+                                                        style="color: blue;"
+                                                        onclick="openModal('${department._id}', '${department.name}', '${department.description}')"></i>&nbsp;&nbsp;
+                                                        
+                                                    <i class="fa fa-trash"
+                                                        aria-hidden="true"
+                                                        style="color: red;"
+                                                        onclick="deleteDepartment('${department._id}')"></i>
+                                                </td>
+                                            </tr>`);
+                    });
+                } else {
+                    alert(response.message);
+                }
+            }
+        });
+        
+
+        function deleteDepartment(departmentId) {
+            if(confirm  ('are you sure')){
+                $.ajax({
+                    type: "DELETE",
+                    url: "/department",
+                    data: {departmentId : departmentId},
+                    success: (response) =>{
+                        console.log(response)
+                    }
+                });
+            }
+                }
+
+        function openModal(departmentId, name, description) {
+                $('#modal_ip_departmentId').val(departmentId);
+                $('#modal_ip_name').val(name);
+                $('#modal_ip_description').val(description);
+                $('#exampleModal').modal('show');
+            }
+
+        $('#modal_submit').on('click', function () {
+            $.ajax({
+                type: "POST",
+                url: "/edit-department",
+                data: $("#modal_form").serialize(),
+                success: (response) => {
+                    $('#exampleModal').modal('hide');
+                    setTimeout(() => {
+                        if (response.code == 200) {
+                            alert(response.message);
+                            location.reload();
+                        } else {
+                            alert(response.message);
+                        }
+                    }, 700);
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

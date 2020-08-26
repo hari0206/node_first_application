@@ -1,0 +1,24 @@
+.form-control {
+	padding: 2px;
+	margin: 3px;
+}
+
+.navBar {
+	margin-top: 65px;
+	padding: 0px;
+}
+
+.nav-dropdown {
+	padding-right: 16px;
+	color: black;
+}
+
+.jumbotron {
+	background-image: url(cake5.jpg);
+	/* background-position: left; */
+	background-repeat: no-repeat;
+	background-size: cover;
+	width: 100%;
+	height: 400px;
+	color: white;
+}
